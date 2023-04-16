@@ -1,15 +1,13 @@
-﻿using Chayhana.Domain.Commons;
+﻿using Chayhana.Domain.Entities;
 using Chayhana.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Chayhana.Domain.Entities;
+namespace Chayhana.Service.DTOs;
 
-public class Meal : Auditable
+public class MealForResultDto
 {
-    [StringLength(30, MinimumLength = 2)]
+    public int Id { get; set; } 
     public string Name { get; set; }
-
-    [StringLength(50, MinimumLength = 2)]
     public string Description { get; set; }
     public decimal Price { get; set; }
     public double TotalAmount { get; set; }
@@ -18,5 +16,5 @@ public class Meal : Auditable
     public decimal TotalMoneyOfSoldMeal { get; set; }
     public CategoryType Type { get; set; }
 
-    public ICollection<Order> Oredrs { get; set; }
+    public ICollection<Order> SoldMeals { get; set; }
 }

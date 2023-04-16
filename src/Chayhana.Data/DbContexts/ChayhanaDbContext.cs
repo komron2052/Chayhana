@@ -13,13 +13,13 @@ public class ChayhanaDbContext : DbContext
 	}
 
 	public DbSet<Meal> Meals { get; set; }	
-	public DbSet<SoldMeal> SoldMeals { get; set; }
+	public DbSet<Order> Oreders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-		modelBuilder.Entity<SoldMeal>()
+		modelBuilder.Entity<Order>()
 			.HasOne(m => m.Meal)
-			.WithMany(s => s.SoldMeals)
+			.WithMany(s => s.Oredrs)
 			.HasForeignKey(m => m.MealId)
 			.OnDelete(DeleteBehavior.NoAction);
 
