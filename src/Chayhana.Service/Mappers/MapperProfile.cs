@@ -10,6 +10,7 @@ public class MapperProfile : Profile
 	{
 		CreateMap<MealForCreationDto, Meal>().ReverseMap();
 		CreateMap<MealForResultDto, Meal>().ReverseMap();
+		
 
 		CreateMap<OrderForCreationDto, Order>().ReverseMap();
 		CreateMap<OrderForResultDto, Order>().ReverseMap();

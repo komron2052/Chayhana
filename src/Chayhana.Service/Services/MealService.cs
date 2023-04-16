@@ -3,6 +3,8 @@ using Chayhana.Data.IRepositories;
 using Chayhana.Domain.Configurations;
 using Chayhana.Domain.Entities;
 using Chayhana.Service.DTOs;
+using Chayhana.Service.Exeptions;
+using Chayhana.Service.Extensions;
 using Chayhana.Service.Interfaces;
 
 namespace Chayhana.Service.Services;
@@ -17,28 +19,63 @@ public class MealService : IMealService
         this.mapper = mapper;
     }
 
-    public async Task<MealForResultDto> AddAsync(MealForCreationDto result)
+    public async Task<MealForResultDto> AddAsync(MealForCreationDto dto)
     {
-        throw new NotImplementedException();
+        var meal = await this.mealRepository.SelectAsync(m => m.Name.ToLower() == dto.Name.ToLower());
+        if (meal != null)
+            throw new CustomExeption(400, "Meal already exists");
+
+        var mappedMeal = this.mapper.Map<Meal>(dto);
+        mappedMeal.CreatedAt = DateTime.UtcNow;
+        var addedMeal = await this.mealRepository.InsertAsync(mappedMeal);
+
+        await this.mealRepository.SaveAsync();
+
+        return this.mapper.Map<MealForResultDto>(addedMeal);
+
     }
 
-    public Task<MealForResultDto> ModifyAsync(int id, MealForCreationDto result)
+    public async Task<MealForResultDto> ModifyAsync(int id, MealForCreationDto dto)
     {
-        throw new NotImplementedException();
+        var meal = await this.mealRepository.SelectAsync(m => m.Id == id);
+        if (meal == null)
+            throw new CustomExeption(404, "Not found");
+
+        var mappedMeal = this.mapper.Map(dto, meal);
+        mappedMeal.UpdatedAt = DateTime.UtcNow;
+
+        await this.mealRepository.SaveAsync();
+
+        return this.mapper.Map<MealForResultDto>(mappedMeal);
     }
 
-    public Task<bool> RemoveAsync(int id)
+    public async Task<bool> RemoveAsync(int id)
     {
-        throw new NotImplementedException();
+        var meal = await this.mealRepository.SelectAsync(m => m.Id == id);
+        if (meal == null)
+            throw new CustomExeption(404, "Not found");
+
+        await this.mealRepository.DeleteAsync(m => m.Id == id);
+
+        return true;
     }
 
-    public Task<IEnumerable<MealForResultDto>> RetrieveAllAsync(PaginationParams @params, string searchString)
+    public async Task<IEnumerable<MealForResultDto>> RetrieveAllAsync(PaginationParams @params, string searchString)
     {
-        throw new NotImplementedException();
+        var meals = this.mealRepository.SelectAll();
+
+        meals = !string.IsNullOrEmpty(searchString) ? meals.Where(m => m.Name.Contains(searchString) ||
+        m.Description.Contains(searchString)).ToPagedList(@params) : meals.ToPagedList(@params);
+
+        return this.mapper.Map<IEnumerable<MealForResultDto>>(meals.ToList());
     }
 
-    public Task<MealForResultDto> RetrieveByIdAsync(long id)
+    public async Task<MealForResultDto> RetrieveByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var meal = await this.mealRepository.SelectAsync(m => m.Id == id);
+        if (meal == null)
+            throw new CustomExeption(404, "Not found");
+
+        return this.mapper.Map<MealForResultDto>(meal);
     }
 }

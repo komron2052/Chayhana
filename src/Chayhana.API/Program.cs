@@ -1,4 +1,7 @@
+using Chayhana.API.Extensions;
+using Chayhana.API.Middlewares;
 using Chayhana.Data.DbContexts;
+using Chayhana.Service.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ChayhanaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddServices();
+builder.Services.AddRepositories();
+builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 var app = builder.Build();
 
@@ -19,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExeptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
